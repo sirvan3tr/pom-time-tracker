@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>JavaScript Utility</title>
+    <meta name="application-name" content="JavaScript Utility">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+  </head>
+  <body>
+	<div class="container">
+		<div id="app"></div>
+	</div>
+<!-- Javascript -------------------------------------------------------------->
+<script src="./jsutil.js"></script>
+<script>
+/*
+ * element.getBoundingClientRect();
+ * console.log(rect.top, rect.right, rect.bottom, rect.left);
+ */
+const app = find("app");
+
+// State variable
+let state = new Atom({val: 1});
+// Handler
+const clickHandler = () => { state.set("val", state.getValue("val")+1);}
+// Dom element creation
+//app.appendChild(div({"class": "test"}, [state, "val"]));
+
+var _ = undefined;
+var jsonObj = [{name: "table",
+         child: [{name: "tr",
+                 child: [{name: "td",
+                         content: "Another table"},
+                         {name: "td",
+                                 content: "Andlfjaslfj"}]}]}];
+
+function json2HTML(obj) {
+  var f = null;
+  obj.forEach(function(i, e) {
+    if (i.child) {
+        f = ƒ(i.name, _, _, json2HTML(i.child));   
+    } else {
+        f = ƒ(i.name, _, i.content);
+    }
+
+  });
+  return f;
+}
+//app.appendChild(json2HTML(jsonObj));
+var x = ƒ("table", _, _,
+            ƒ("tr", _, _,
+                ƒ("td", _, "Hello")));
+//app.appendChild(x);
+
+let dailyTasks = [{
+		name: "Write",
+		poms: 6,
+		completed: 0,
+	},
+	{
+		name: "Code/Psychi",
+		poms: 2,
+		completed: 0,
+	},
+	{
+		name: "Read",
+		poms: 1,
+		completed: 0,
+	}];
+
+function renderItems(itemsList) {
+// Has a side effect.
+// itemsList is for example dailyTasks
+// appends items to the app
+	let ul = ƒ("ul", {"class": "list-group"});
+	for (let j=0; j < itemsList.length; j++) {
+		let t = itemsList[j];
+		//let d = div(_, t.name);
+		let mainLi = ƒ("li", {"class": "list-group-item d-flex justify-content-between align-items-center"});
+		let d = ƒ("span", _, t.name);
+		let completed = t.completed;
+		for (var i = 0; i < t.poms; i++) {
+			let chBoxDict = {"onclick": "checkingItem(this)",
+						"class":"form-check-input",
+						"type":"checkbox"}
+			chBoxDict.item = j;
+			if (completed > 0) {
+				chBoxDict.checked = true;
+				completed -= 1;
+			}
+			let chbox = ƒ("input", chBoxDict);
+			d.appendChild(chbox);
+		}
+		mainLi.appendChild(d);
+		let sp = ƒ("span", {"class": "badge bg-primary rounded-pill"}, t.poms.toString());
+		mainLi.appendChild(sp);
+		ul.appendChild(mainLi);
+	}
+	app.appendChild(ul);
+}
+
+let getTodaysDate = () => new Date().toISOString().split('T')[0];
+
+// Fetch DB from localStorage.
+let localStorageKey = "pomTimeTrackerDb";
+let db = localStorage.getItem(localStorageKey);
+if (db == null) {
+	console.log("DB is null");
+	db = {};
+	localStorage.setItem(localStorageKey, JSON.stringify(db));
+} else {
+	db = JSON.parse(localStorage.getItem(localStorageKey));
+}
+
+if(!(getTodaysDate() in db)) {
+	// We don't have any items for today.
+	db[getTodaysDate()] = dailyTasks;
+}
+
+renderItems(db[getTodaysDate()]);
+
+function updateDB (db) {
+	localStorage.setItem(localStorageKey, JSON.stringify(db));
+}
+
+function checkingItem(e) {
+	let itemNumber = e.getAttribute("item");
+	if (e.checked) {
+		db[getTodaysDate()][itemNumber].completed += 1;
+	} else {
+		db[getTodaysDate()][itemNumber].completed -= 1;
+	}
+
+	console.log(db);
+	updateDB(db);
+}
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+  </body>
+</html>
+
